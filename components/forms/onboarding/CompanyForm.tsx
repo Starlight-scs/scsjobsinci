@@ -100,7 +100,7 @@ export function CompanyForm() {
                     <SelectGroup>
                       <SelectLabel>Location</SelectLabel>
                       {countryList.map((country) => (
-                        <SelectItem key={country.code} value={country.name}>
+                        <SelectItem key={country.name} value={country.name}>
                           <span>{country.flagEmoji}</span>
                           <span className="pl-2">{country.name}</span>
                         </SelectItem>
