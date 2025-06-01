@@ -1,20 +1,35 @@
-// Create a schema for form validation with zod (recommended with shadcn)
-// lib/schemas/application-schema.js
+// server/actions/submitApplication.ts
+"use server";
+
+import { prisma } from "@/app/utils/db";
 import { z } from "zod";
+import { requireUser } from "@/app/utils/requireUser";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-
-export const applicationSchema = z.object({
-  resume: z
-    .instanceof(File)
-    .refine((file) => file.size > 0, "Resume is required")
-    .refine(
-      (file) => file.size <= MAX_FILE_SIZE,
-      "File size must be less than 5MB"
-    )
-    .refine(
-      (file) => file.type === "application/pdf",
-      "Only PDF files are accepted"
-    ),
-  coverLetter: z.string().optional(),
+const applicationSchema = z.object({
+  jobId: z.string().min(1),
+  employmentType: z.string().min(1),
+  resume: z.string().url(),
+  coverLetter: z.string().url(), // changed to .url() for PDF consistency
 });
+
+export async function submitApplication(data: z.infer<typeof applicationSchema>) {
+  const user = await requireUser();
+  const validated = applicationSchema.parse(data);
+
+  try {
+    await prisma.jobApplication.create({
+      data: {
+        jobPost: { connect: { id: validated.jobId } },
+        user: { connect: { id: user.id } },
+        employmentType: validated.employmentType,
+        resume: validated.resume,
+        coverLetter: validated.coverLetter,
+      },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to submit application:", error);
+    return { success: false, error: "Something went wrong." };
+  }
+}

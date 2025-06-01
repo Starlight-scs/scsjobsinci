@@ -33,7 +33,7 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import { XIcon } from "lucide-react";
 import { UploadDropzone } from "../general/UploadThingReexported";
-import { JobLisitingDuration } from "../general/JobLisitingDurationSelector";
+import { JobListingDuration } from "../general/JobListingDurationSelector";
 import { createJob } from "@/app/actions";
 import { useState } from "react";
 
@@ -79,10 +79,15 @@ export function CreateJobForm({
   async function onSubmit(values: z.infer<typeof jobSchema>) {
     try {
       setPending(true);
-      await createJob(values);
+      console.log("Form submitted with values:", values); // Debug log
+      const result = await createJob(values);
+      console.log("Job creation result:", result); // Debug log
     } catch (error) {
+      console.error("Error submitting form:", error); // Better error logging
+      // Only ignore NEXT_REDIRECT errors as they're expected for navigation
       if (error instanceof Error && error.message !== "NEXT_REDIRECT") {
-        console.log("something went wrong");
+        console.error("Form submission error:", error.message);
+        // Consider adding user feedback here
       }
     } finally {
       setPending(false);
@@ -172,7 +177,7 @@ export function CreateJobForm({
                         <SelectGroup>
                           <SelectLabel>Location</SelectLabel>
                           {countryList.map((country) => (
-                            <SelectItem key={country.code} value={country.name}>
+                            <SelectItem key={country.name} value={country.name}>
                               <span>{country.flagEmoji}</span>
                               <span className="pl-2">{country.name}</span>
                             </SelectItem>
@@ -191,8 +196,8 @@ export function CreateJobForm({
                   <SalaryRangeSelector
                     control={form.control}
                     minSalary={10000}
-                    maxSalary={1000000}
-                    step={2000}
+                    maxSalary={200000}
+                    step={1000}
                   />
                 </FormControl>
               </FormItem>
@@ -274,7 +279,7 @@ export function CreateJobForm({
                         <SelectGroup>
                           <SelectLabel>Location</SelectLabel>
                           {countryList.map((country) => (
-                            <SelectItem key={country.code} value={country.name}>
+                            <SelectItem key={country.name} value={country.name}>
                               <span>{country.flagEmoji}</span>
                               <span className="pl-2">{country.name}</span>
                             </SelectItem>
@@ -395,7 +400,7 @@ export function CreateJobForm({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <JobLisitingDuration field={field as any} />
+                    <JobListingDuration field={field as any} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -407,6 +412,7 @@ export function CreateJobForm({
         <Button type="submit" className="w-full" disabled={pending}>
           {pending ? "Submitting" : "Create Job Post"}
         </Button>
+      
       </form>
     </Form>
   );
