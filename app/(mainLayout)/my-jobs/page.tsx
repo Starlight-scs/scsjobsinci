@@ -63,8 +63,8 @@ const MyJobs = async () => {
   const session = await requireUser();
   const data = await getJobs(session.id as string);
 
-  // @ts-ignore
-  // @ts-ignore
+
+
   return (
       <>
         {data.length === 0 ? (
