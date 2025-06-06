@@ -27,8 +27,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { MoreHorizontal, PenBoxIcon, XCircle } from "lucide-react";
+import { StaticImport } from "next/dist/shared/lib/get-img-props";
 import Image from "next/image";
 import Link from "next/link";
+import {Key, ReactElement, JSXElementConstructor, ReactNode, ReactPortal} from "react";
 
 async function getJobs(userId: string) {
   const data = await prisma.jobPost.findMany({
@@ -57,41 +59,43 @@ async function getJobs(userId: string) {
   return data;
 }
 
-export default async function MyJobsPage() {
+const MyJobs = async () => {
   const session = await requireUser();
   const data = await getJobs(session.id as string);
 
+  // @ts-ignore
+  // @ts-ignore
   return (
-    <>
-      {data.length === 0 ? (
-        <EmptyState
-          title="You Can't Post a Job Yet!"
-          description="Sign up as a company to post a job."
-          buttonText="Sign up as a company"
-          href="/onboarding/"
-        />
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>My Jobs</CardTitle>
-            <CardDescription>
-              Manage your job listings and applications here.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Logo</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Job Title</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Created at</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.map((listing) => (
+      <>
+        {data.length === 0 ? (
+            <EmptyState
+                title="You Can't Post a Job Yet!"
+                description="Sign up as a company to post a job."
+                buttonText="Sign up as a company"
+                href="/onboarding/"
+            />
+        ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle>My Jobs</CardTitle>
+                <CardDescription>
+                  Manage your job listings and applications here.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Logo</TableHead>
+                      <TableHead>Company</TableHead>
+                      <TableHead>Job Title</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Created at</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {data.map((listing: { id: Key | null | undefined; Company: { logo: string | StaticImport; name: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; }; jobTitle: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; status: string; createdAt: { toLocaleDateString: (arg0: string, arg1: { month: string; day: string; year: string; }) => string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; }; }) => (
                   <TableRow key={listing.id}>
                     <TableCell>
                       <Image
@@ -154,3 +158,4 @@ export default async function MyJobsPage() {
     </>
   );
 }
+export default MyJobs;

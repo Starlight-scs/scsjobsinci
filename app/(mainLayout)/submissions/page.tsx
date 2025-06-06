@@ -70,6 +70,7 @@ export default async function SubmissionsPage() {
     },
   });
 
+  // @ts-ignore
   return (
     <div className="max-w-4xl mx-auto py-10 px-4 space-y-6">
       <Card>
@@ -82,7 +83,7 @@ export default async function SubmissionsPage() {
               No applications have been submitted yet.
             </p>
           ) : (
-            applications.map((app) => (
+            applications.map((app: typeof applications[0]) => (
               <div
                 key={app.id}
                 className="border border-border p-4 rounded-lg shadow-sm bg-card space-y-3"

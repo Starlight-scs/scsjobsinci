@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.SECRET_STRIPE_KEY as string
+      process.env.STRIPE_WEBHOOK_SECRET as string
     );
   } catch {
     return new Response("Webhook error", { status: 400 });
@@ -25,34 +25,27 @@ export async function POST(req: Request) {
   const session = event.data.object as Stripe.Checkout.Session;
 
   if (event.type === "checkout.session.completed") {
-    const customerId = session.customer;
+    const customerId = session.customer as string;
     const jobId = session.metadata?.jobId;
 
     if (!jobId) {
-      return new Response("No job id found", { status: 400 });
+      console.error("No job ID found in session metadata");
+      return new Response("No job ID found", { status: 400 });
     }
 
-    const company = await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: {
-        stripeCustomerId: customerId as string,
-      },
-      select: {
-        Company: {
-          select: {
-            id: true,
-          },
-        },
+        stripeCustomerId: customerId,
       },
     });
 
-    if (!company) {
-      return new Response("No company found for user", { status: 400 });
-    }
+    if (!user) throw new Error("User not found...");
 
+    // Update the job post status to PUBLISHED
     await prisma.jobPost.update({
       where: {
         id: jobId,
-        companyId: company?.Company?.id as string,
+        userId: user.id, // Ensure the job belongs to the user
       },
       data: {
         status: "ACTIVE",

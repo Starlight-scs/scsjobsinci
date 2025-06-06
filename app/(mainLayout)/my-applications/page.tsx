@@ -37,7 +37,20 @@ export default async function MyApplicationsPage() {
         </p>
       ) : (
         <ul className="space-y-6">
-          {applications.map((app) => (
+          {applications.map((app: {
+            id: string;
+            createdAt: Date;
+            resume: string;
+            coverLetter: string;
+            jobPost: {
+              jobTitle: string;
+              employmentType: string;
+              location: string;
+              Company: {
+                name: string;
+              };
+            };
+          }) => (
             <li
               key={app.id}
               className="bg-card border border-border rounded-lg p-6 shadow-sm"
