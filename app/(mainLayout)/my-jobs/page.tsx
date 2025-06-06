@@ -36,7 +36,7 @@ import { CopyLinkMenuItem } from "@/components/general/CopyLink";
 async function getJobs(userId: string) {
   const data = await prisma.jobPost.findMany({
     where: {
-      company: {
+      Company: {
         userId: userId,
       },
     },
@@ -45,7 +45,7 @@ async function getJobs(userId: string) {
       jobTitle: true,
       status: true,
       createdAt: true,
-      company: {
+      Company: {
         select: {
           name: true,
           logo: true,
