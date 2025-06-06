@@ -98,10 +98,10 @@ const MyJobs = async () => {
                 {data.map((listing) => (
                   <TableRow key={listing.id}>
                     <TableCell>
-                      {listing.company.logo ? (
+                      {listing.Company.logo ? (
                         <Image
-                          src={listing.company.logo}
-                          alt={`${listing.company.name} logo`}
+                          src={listing.Company.logo}
+                          alt={`${listing.Company.name} logo`}
                           width={40}
                           height={40}
                           className="rounded-md size-10"
@@ -113,7 +113,7 @@ const MyJobs = async () => {
                       )}
                     </TableCell>
                     <TableCell className="font-medium">
-                      {listing.company.name}
+                      {listing.Company.name}
                     </TableCell>
                     <TableCell>{listing.jobTitle}</TableCell>
                     <TableCell>
