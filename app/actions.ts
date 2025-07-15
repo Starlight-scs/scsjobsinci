@@ -127,7 +127,7 @@ export async function createJob(data: z.infer<typeof jobSchema>) {
 
     stripeCustomerId = customer.id;
 
-    //update user with stripe custoemr id
+    //update user with stripe customer id
 
     await prisma.user.update({
       where: {
@@ -324,24 +324,6 @@ export async function deleteJobPost(jobId: string) {
 
   return redirect("/my-jobs");
 }
-
-
-export async function unsaveJobPost(savedJobPostId: string) {
-  const user = await requireUser();
-
-  const data = await prisma.savedJobPost.delete({
-    where: {
-      id: savedJobPostId,
-      userId: user.id as string,
-    },
-    select: {
-      jobPostId: true,
-    },
-  });
-
-    revalidatePath(`/job/${data.jobPostId}`);
-}
-
 export async function deleteJobApplication(applicationId: string) {
   const user = await requireUser();
 
