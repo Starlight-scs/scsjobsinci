@@ -341,3 +341,44 @@ export async function unsaveJobPost(savedJobPostId: string) {
 
     revalidatePath(`/job/${data.jobPostId}`);
 }
+
+export async function deleteJobApplication(applicationId: string) {
+  const user = await requireUser();
+
+  const req = await request();
+
+  const decision = await aj.protect(req);
+
+  if (decision.isDenied()) {
+    throw new Error("Forbidden");
+  }
+
+  // First, verify the application belongs to the user
+  const application = await prisma.jobApplication.findFirst({
+    where: {
+      id: applicationId,
+      userId: user.id,
+    },
+    select: {
+      id: true,
+      jobPostId: true,
+    },
+  });
+
+  if (!application) {
+    throw new Error("Application not found or unauthorized.");
+  }
+
+  // Delete the application
+  await prisma.jobApplication.delete({
+    where: {
+      id: applicationId,
+    },
+  });
+
+  // Revalidate relevant paths
+  revalidatePath("/my-applications");
+  revalidatePath(`/job/${application.jobPostId}`);
+
+  return redirect("/my-applications");
+}
