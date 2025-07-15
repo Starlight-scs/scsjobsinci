@@ -10,7 +10,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {Avatar, AvatarImage} from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { MessageCircle, X } from "lucide-react";
 
 export default async function SubmissionsPage() {
   const session = await requireUser();
@@ -70,7 +72,6 @@ export default async function SubmissionsPage() {
     },
   });
 
-
   return (
     <div className="max-w-4xl mx-auto py-10 px-4 space-y-6">
       <Card>
@@ -88,17 +89,41 @@ export default async function SubmissionsPage() {
                 key={app.id}
                 className="border border-border p-4 rounded-lg shadow-sm bg-card space-y-3"
               >
-                <div className="flex items-center gap-4">
-                  <Avatar>
-                   <AvatarImage src={app.user.image || "/default-profile.png"} alt="Profile Image" />
-                   </Avatar>
-                  <div>
-                    <h3 className="text-lg font-semibold">
-                      {app.user.name || "Anonymous"}
-                    </h3>
-                    <Badge variant="secondary" className="mt-1">
-                      {app.jobPost.jobTitle} • {app.jobPost.employmentType}
-                    </Badge>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <Avatar>
+                      <AvatarImage
+                        src={app.user.image || "/default-profile.png"}
+                        alt="Profile Image"
+                      />
+                    </Avatar>
+                    <div>
+                      <h3 className="text-lg font-semibold">
+                        {app.user.name || "Anonymous"}
+                      </h3>
+                      <Badge variant="secondary" className="mt-1">
+                        {app.jobPost.jobTitle} • {app.jobPost.employmentType}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-white hover:text-green-600 hover:bg-blue-50"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-1" />
+                      Follow up
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-white  hover:text-red-700 hover:bg-red-50"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Not a fit
+                    </Button>
                   </div>
                 </div>
 

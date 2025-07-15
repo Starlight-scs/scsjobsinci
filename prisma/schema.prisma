@@ -134,6 +134,14 @@ model JobPost {
 
   SavedJobPost   SavedJobPost[]
   JobApplication JobApplication[]
+
+  applications Application[]
+}
+
+model Application {
+  id        String  @id @default(uuid())
+  jobPost   JobPost @relation(fields: [jobPostId], references: [id])
+  jobPostId String
 }
 
 enum JobPostStatus {

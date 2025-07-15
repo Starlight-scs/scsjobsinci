@@ -21,10 +21,10 @@ const BannerVideo: React.FC<BannerVideoProps> = ({ videoSource, posterImage }) =
           className="w-full h-full object-cover absolute top-0 left-0 -z-50 brightness-[40%]"
         />
         <div className="absolute w-full px-6 lg:px-20">
-          <h1 className="text-white text-4xl md:text-5xl lg:text-6xl font-bold max-w-4xl">
-            Why We Work
+          <h1 className="text-white text-3xl md:text-4xl lg:text-5xl font-bold max-w-3xl font-serif">
+            Work in Central <span className="text-primary"> Illinois </span>
           </h1>
-          <p className="text-white text-lg mt-5 max-w-2xl"> Your Purpose. Your Path. Your Work. </p>
+          <p className="text-white text-lg mt-5 max-w-1xl font-bold font-sans"> Find your next Job right here in Central Illinois </p>
           <div className="flex gap-x-3 mt-4">
               <p>
 

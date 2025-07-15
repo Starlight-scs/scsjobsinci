@@ -17,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Work In Macon County",
-  description: "Find your next job in Macon County",
+  title: "Jobs in Central Illinois",
+  description: "Find your next job in Central Illinois.",
 };
 
 export default function RootLayout({

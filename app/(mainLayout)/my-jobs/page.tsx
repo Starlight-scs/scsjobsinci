@@ -51,6 +51,11 @@ async function getJobs(userId: string) {
           logo: true,
         },
       },
+      _count: {
+        select: {
+          applications: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -120,7 +125,7 @@ const MyJobs = async () => {
                       {listing.status.charAt(0).toUpperCase() +
                         listing.status.slice(1).toLowerCase()}
                     </TableCell>
-                    <TableCell>5</TableCell>
+                    <TableCell>{listing._count.applications}</TableCell>
                     <TableCell>
                       {listing.createdAt.toLocaleDateString("en-US", {
                         month: "long",

@@ -3,7 +3,9 @@
 import { requireUser } from "@/app/utils/requireUser";
 import { prisma } from "@/app/utils/db";
 import { Badge } from "@/components/ui/badge";
-
+import { Button } from "@/components/ui/button";
+import { TrashIcon } from "lucide-react";
+import Link from "next/link";
 
 export default async function MyApplicationsPage() {
   const user = await requireUser();
@@ -64,9 +66,22 @@ export default async function MyApplicationsPage() {
                     {app.jobPost.Company.name} • {app.jobPost.location}
                   </p>
                 </div>
-                <Badge variant="secondary">
-                  {app.jobPost.employmentType}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">
+                    {app.jobPost.employmentType}
+                  </Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Link href={`/my-applications/${app.id}/delete`}>
+                      <TrashIcon className="h-4 w-4" />
+                      Delete
+                    </Link>
+                  </Button>
+                </div>
               </div>
 
               <p className="text-sm text-muted-foreground mb-3">

@@ -221,8 +221,8 @@ export default async function JobIdPage({ params }: { params: Params }) {
                 <h3 className="font-semibold">Apply now</h3>
               </div>
               <p className="text-sm text-muted-foreground mt-1">
-                Please let {data.Company.name} know you found this job on
-                Jobs in Macon County.com. This helps us grow!
+                Please let <span className="text-primary text-1xl font-bold text-foreground "> {data.Company.name}</span> know you found this job on
+                <span className="text-1xl font-bold text-foreground "> Jobs in Central Illinois.com.</span> This helps us grow!
               </p>
             </div>
 

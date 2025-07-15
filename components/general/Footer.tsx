@@ -11,7 +11,7 @@ export default function Footer() {
         <Link href="/" className="flex items-center gap-3">
           <Cog className="size-7 text-primary" />
           <h1 className="text-2xl font-bold text-foreground">
-            Jobs in<span className="text-primary"> Macon County</span>
+            Jobs in<span className="text-primary"> Central Illinois</span>
           </h1>
         </Link>
       </div>
