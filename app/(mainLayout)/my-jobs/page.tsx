@@ -34,7 +34,7 @@ import { requireUser } from "@/app/utils/requireUser";
 import { CopyLinkMenuItem } from "@/components/general/CopyLink";
 
 async function getJobs(userId: string) {
-  const data = await prisma.jobPost.findMany({
+  const [data] = await Promise.all([prisma.jobPost.findMany({
     where: {
       Company: {
         userId: userId,
@@ -60,7 +60,7 @@ async function getJobs(userId: string) {
     orderBy: {
       createdAt: "desc",
     },
-  });
+  })]);
 
   return data;
 }

@@ -84,15 +84,7 @@ export const sendPeriodicJobListings = inngest.createFunction(
         await step.run("send-email", async () => {
           const jobListingsHtml = recentJobs
             .map(
-              (job: {
-                jobTitle: string;
-                location: string;
-                salaryFrom: number;
-                salaryTo: number;
-                Company: {
-                  name: string;
-                }
-              }) => `
+              (job) => `
             <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #eee; border-radius: 5px;">
               <h3 style="margin: 0;">${job.jobTitle}</h3>
               <p style="margin: 5px 0;">${job.Company.name} • ${
@@ -105,7 +97,7 @@ export const sendPeriodicJobListings = inngest.createFunction(
             .join("");
 
           await resend.emails.send({
-            from: "JobMarshal <onboarding@resend.dev>",
+            from: "JobsincentralIL <onboarding@resend.dev>",
             to: ["john.rak.fisher@gmail.com"],
             subject: "Latest Job Opportniues for you",
             html: `

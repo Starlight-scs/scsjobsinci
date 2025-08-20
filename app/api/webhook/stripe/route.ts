@@ -3,66 +3,62 @@ import { stripe } from "@/app/utils/stripe";
 import { headers } from "next/headers";
 import Stripe from "stripe";
 
-export async function POST(req: Request): Promise<Response> {
-  // 1) Read the raw body as text
+export async function POST(req: Request) {
   const body = await req.text();
 
-  // 2) Grab the Stripe signature header
-  const sig = (await headers()).get("Stripe-Signature");
-  if (!sig) {
-    console.error("Missing Stripe-Signature header");
-    return new Response("Missing signature", { status: 400 });
-  }
+  const headersList = await headers();
 
-  // 3) Verify & construct the Stripe event
+  const signature = headersList.get("Stripe-Signature") as string;
+
   let event: Stripe.Event;
+
   try {
     event = stripe.webhooks.constructEvent(
       body,
-      sig,
+      signature,
       process.env.STRIPE_WEBHOOK_SECRET as string
     );
-  } catch (err) {
-    console.error("⚠️ Stripe webhook signature verification failed:", err);
-    return new Response("Webhook signature verification failed", { status: 400 });
+  } catch {
+    return new Response("Webhook error", { status: 400 });
   }
 
-  // 4) Only handle checkout.session.completed
+  const session = event.data.object as Stripe.Checkout.Session;
+
   if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const customerId = session.customer as string;
+    const customerId = session.customer;
     const jobId = session.metadata?.jobId;
+
     if (!jobId) {
-      console.error("No jobId in session.metadata");
-      return new Response("Missing jobId", { status: 400 });
+      return new Response("No job id found", { status: 400 });
     }
 
-    // 5) Lookup your User by their Stripe customer ID
-    const user = await prisma.user.findUnique({
-      where: { stripeCustomerId: customerId },
+    const company = await prisma.user.findUnique({
+      where: {
+        stripeCustomerId: customerId as string,
+      },
+      select: {
+        Company: {
+          select: {
+            id: true,
+          },
+        },
+      },
     });
-    if (!user) {
-      console.error(`No user found for Stripe customer ${customerId}`);
-      return new Response("User not found", { status: 404 });
+
+    if (!company) {
+      return new Response("No company found for user", { status: 400 });
     }
 
-    // 6) Atomically update the JobPost to ACTIVE only if it belongs to this user's company
-    const result = await prisma.jobPost.updateMany({
+    await prisma.jobPost.update({
       where: {
         id: jobId,
-        Company: { userId: user.id },
+        companyId: company?.Company?.id as string,
       },
-      data: { status: "ACTIVE" },
+      data: {
+        status: "ACTIVE",
+      },
     });
-
-    if (result.count === 0) {
-      console.error(
-        `No job post ${jobId} owned by company of user ${user.id}`
-      );
-      return new Response("Job not found or not yours", { status: 404 });
-    }
   }
 
-  // 7) Return a 200 for all other event types & success paths
   return new Response(null, { status: 200 });
 }

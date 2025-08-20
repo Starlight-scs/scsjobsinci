@@ -127,7 +127,7 @@ export async function createJob(data: z.infer<typeof jobSchema>) {
 
     stripeCustomerId = customer.id;
 
-    //update user with stripe customer id
+    //update user with stripe custoemr id
 
     await prisma.user.update({
       where: {
@@ -139,7 +139,7 @@ export async function createJob(data: z.infer<typeof jobSchema>) {
     });
   }
 
-  const jobPost = await prisma.jobPost.create({
+  const jobpost = await prisma.jobPost.create({
     data: {
       jobDescription: validateData.jobDescription,
       jobTitle: validateData.jobTitle,
@@ -167,7 +167,7 @@ export async function createJob(data: z.infer<typeof jobSchema>) {
   await inngest.send({
     name: "job/created",
     data: {
-      jobId: jobPost.id,
+      jobId: jobpost.id,
       expirationDays: validateData.listingDuration,
     },
   });
@@ -191,7 +191,7 @@ export async function createJob(data: z.infer<typeof jobSchema>) {
       },
     ],
     metadata: {
-      jobId: jobPost.id,
+      jobId: jobpost.id,
     },
     mode: "payment",
     success_url: `${process.env.NEXT_PUBLIC_URL}/payment/success`,
@@ -286,46 +286,6 @@ export async function editJobPost(
 
 export async function deleteJobPost(jobId: string) {
   const session = await requireUser();
-  const req = await request();
-
-  const decision = await aj.protect(req);
-  if (decision.isDenied()) throw new Error("Forbidden");
-
-  const jobPost = await prisma.jobPost.findFirst({
-    where: {
-      id: jobId,
-      Company: {
-        userId: session.id,
-      },
-    },
-  });
-
-  if (!jobPost) {
-    throw new Error("Job post not found or unauthorized.");
-  }
-
-  // ⚠️ WARNING: This will delete all related records before deleting the job post
-  await prisma.jobApplication.deleteMany({
-    where: { jobPostId: jobId },
-  });
-
-  await prisma.savedJobPost.deleteMany({
-    where: { jobPostId: jobId },
-  });
-
-  await prisma.jobPost.delete({
-    where: { id: jobId },
-  });
-
-  await inngest.send({
-    name: "job/cancel.expiration",
-    data: { jobId },
-  });
-
-  return redirect("/my-jobs");
-}
-export async function deleteJobApplication(applicationId: string) {
-  const user = await requireUser();
 
   const req = await request();
 
@@ -335,32 +295,19 @@ export async function deleteJobApplication(applicationId: string) {
     throw new Error("Forbidden");
   }
 
-  // First, verify the application belongs to the user
-  const application = await prisma.jobApplication.findFirst({
+  await prisma.jobPost.delete({
     where: {
-      id: applicationId,
-      userId: user.id,
-    },
-    select: {
-      id: true,
-      jobPostId: true,
+      id: jobId,
+      Company: {
+        userId: session.id,
+      },
     },
   });
 
-  if (!application) {
-    throw new Error("Application not found or unauthorized.");
-  }
-
-  // Delete the application
-  await prisma.jobApplication.delete({
-    where: {
-      id: applicationId,
-    },
+  await inngest.send({
+    name: "job/cancel.expiration",
+    data: { jobId: jobId },
   });
 
-  // Revalidate relevant paths
-  revalidatePath("/my-applications");
-  revalidatePath(`/job/${application.jobPostId}`);
-
-  return redirect("/my-applications");
+  return redirect("/my-jobs");
 }
