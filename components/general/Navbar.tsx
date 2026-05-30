@@ -10,7 +10,7 @@ export async function Navbar() {
   const userType = (session?.user as { userType?: "COMPANY" | "JOB_SEEKER" })?.userType; // "COMPANY" | "JOB_SEEKER" | undefined
 
   return (
-    <nav className="flex items-center justify-between py-5">
+    <nav className="flex items-center justify-between py-5 sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 mb-6">
       {/* Logo / Brand */}
       <Link href="/" className="flex items-center gap-3">
         <Cog className="size-7" />

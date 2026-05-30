@@ -18,6 +18,10 @@ async function getFavorites(userId: string) {
           employmentType: true,
           location: true,
           createdAt: true,
+          applicationMode: true,
+          externalApplyUrl: true,
+          isVetted: true,
+          sourceLabel: true,
           Company: {
             select: {
               name: true,

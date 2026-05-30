@@ -126,6 +126,10 @@ model JobPost {
   benefits        String[]
 
   status JobPostStatus @default(DRAFT)
+  applicationMode JobApplicationMode @default(INTERNAL)
+  externalApplyUrl String?
+  isVetted Boolean @default(false)
+  sourceLabel String?
 
   createdAt DateTime @default(now())
   updated   DateTime @updatedAt
@@ -148,6 +152,11 @@ enum JobPostStatus {
   DRAFT
   ACTIVE
   EXPIRED
+}
+
+enum JobApplicationMode {
+  INTERNAL
+  EXTERNAL
 }
 
 model SavedJobPost {

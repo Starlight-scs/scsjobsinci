@@ -39,6 +39,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.5.2",
+    "framer-motion": "^12.38.0",
     "inngest": "^3.34.1",
     "login": "^0.8.0",
     "lucide-react": "^0.484.0",

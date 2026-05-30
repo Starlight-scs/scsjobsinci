@@ -5,7 +5,7 @@ export default function HeroBanner() {
   // Single media item (choose the first item from the list)
   const mediaItem = {
     type: "video", // Change to "image" if needed
-    src: "https://d1m1owm6cs8qcm.cloudfront.net/banner_video_jobsincentralil.mp4",
+    src: "https://assets.mixkit.co/videos/preview/mixkit-diverse-team-working-in-a-creative-office-1579-large.mp4",
     alt: "Travel Adventure",
     title: "Find work in Macon County",
     description: "Let's get you connected with best the jobs in Macon County",

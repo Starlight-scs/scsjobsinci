@@ -3,6 +3,7 @@ import { EmptyState } from "./EmptyState";
 import { JobCard } from "./JobCard";
 import { MainPagination } from "./MainPagination";
 import { JobPostStatus } from "@prisma/client";
+import { AnimatedList } from "./AnimatedList";
 
 async function getData({
   page = 1,
@@ -43,6 +44,10 @@ async function getData({
         employmentType: true,
         location: true,
         createdAt: true,
+        applicationMode: true,
+        externalApplyUrl: true,
+        isVetted: true,
+        sourceLabel: true,
         Company: {
           select: {
             name: true,
@@ -58,15 +63,14 @@ async function getData({
     }),
 
     prisma.jobPost.count({
-      where: {
-        status: "ACTIVE",
-      },
+      where: where,
     }),
   ]);
 
   return {
     jobs: data,
     totalPages: Math.ceil(totalCount / pageSize),
+    isDatabaseUnavailable: false,
   };
 }
 
@@ -79,21 +83,36 @@ export async function JobListings({
   jobTypes: string[];
   location: string;
 }) {
-  const { jobs, totalPages } = await getData({
+  const { jobs, totalPages, isDatabaseUnavailable } = await getData({
     page: currentPage,
     pageSize: 6,
     jobTypes: jobTypes,
     location: location,
+  }).catch((error) => {
+    console.error("Failed to load job listings:", error);
+
+    return {
+      jobs: [],
+      totalPages: 0,
+      isDatabaseUnavailable: true,
+    };
   });
 
   return (
     <>
-      {jobs.length > 0 ? (
-        <div className="flex flex-col gap-6">
+      {isDatabaseUnavailable ? (
+        <EmptyState
+          title="Jobs are temporarily unavailable"
+          description="We could not connect to the jobs database. Please refresh the page in a moment."
+          buttonText="Refresh"
+          href="/"
+        />
+      ) : jobs.length > 0 ? (
+        <AnimatedList className="flex flex-col gap-6">
           {jobs.map((job) => (
             <JobCard key={job.id} job={job} />
           ))}
-        </div>
+        </AnimatedList>
       ) : (
         <EmptyState
           title="No jobs found"
@@ -103,9 +122,11 @@ export async function JobListings({
         />
       )}
 
-      <div className="flex justify-center mt-6">
-        <MainPagination totalPages={totalPages} currentPage={currentPage} />
-      </div>
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6">
+          <MainPagination totalPages={totalPages} currentPage={currentPage} />
+        </div>
+      )}
     </>
   );
 }

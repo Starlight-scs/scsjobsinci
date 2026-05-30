@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import React from "react";
+import { motion } from "framer-motion";
 
 type BannerVideoProps = {
   videoSource: string;
@@ -8,33 +10,71 @@ type BannerVideoProps = {
 };
 
 const BannerVideo: React.FC<BannerVideoProps> = ({ videoSource, posterImage }) => {
-  return (
-    <div className="w-full">
-      <div className="relative h-[55vh] lg:h-[35vh] w-full flex justify-start items-center">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster={posterImage}
-          src={videoSource}
-          className="w-full h-full object-cover absolute top-0 left-0 -z-50 brightness-[40%]"
-        />
-        <div className="absolute w-full px-6 lg:px-20">
-          <h1 className="text-white text-3xl md:text-4xl lg:text-5xl font-bold max-w-3xl font-serif">
-            Work in Central <span className="text-primary"> Illinois </span>
-          </h1>
-          <p className="text-white text-lg mt-5 max-w-1xl font-bold font-sans"> Find your next Job right here in Central Illinois </p>
-          <div className="flex gap-x-3 mt-4">
-              <p>
+  const [showVideo, setShowVideo] = React.useState(true);
+  const fallbackImage = posterImage || "/images/BannerImage.png";
 
-              </p>
-            {/* Optional content overlay goes here */}
+  return (
+    <section className="relative mb-12 w-full overflow-hidden bg-black">
+      <div className="relative h-[60vh] lg:h-[45vh] w-full flex justify-start items-center">
+        <Image
+          src={fallbackImage}
+          alt="Central Illinois jobs banner"
+          fill
+          priority
+          sizes="100vw"
+          className="absolute inset-0 z-0 object-cover brightness-[45%]"
+        />
+
+        {showVideo && (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster={fallbackImage}
+            src={videoSource}
+            onCanPlay={() => setShowVideo(true)}
+            onError={() => setShowVideo(false)}
+            className="absolute inset-0 z-0 h-full w-full object-cover brightness-[45%]"
+          />
+        )}
+        
+        <div className="absolute inset-0 z-10 bg-black/20" />
+        <div className="absolute inset-x-0 bottom-0 z-10 h-2/3 bg-gradient-to-t from-black via-black/70 to-transparent" />
+
+        <div className="absolute inset-x-0 z-20">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <motion.h1 
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="text-white text-4xl md:text-5xl lg:text-7xl font-bold max-w-4xl tracking-tight leading-[1.1]"
+            >
+              Work in Central <span className="text-primary drop-shadow-sm"> Illinois </span>
+            </motion.h1>
+          
+            <motion.p 
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+              className="text-white/90 text-xl md:text-2xl mt-6 max-w-2xl font-medium"
+            >
+              Find your next opportunity right here in the heart of Central Illinois.
+            </motion.p>
+          
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="flex gap-x-4 mt-10"
+            >
+              {/* Optional action buttons could go here */}
+            </motion.div>
           </div>
         </div>
       </div>
-      <div className="h-12 lg:h-20" /> {/* Bottom spacing before next content */}
-    </div>
+    </section>
   );
 };
 

@@ -46,6 +46,10 @@ interface iAppProps {
     jobDescription: string;
     listingDuration: number;
     benefits: string[];
+    applicationMode: "INTERNAL" | "EXTERNAL";
+    externalApplyUrl: string | null;
+    isVetted: boolean;
+    sourceLabel: string | null;
     id: string;
     Company: {
       location: string;
@@ -76,6 +80,10 @@ export function EditJobForm({ jobPost }: iAppProps) {
       location: jobPost.location,
       salaryFrom: jobPost.salaryFrom,
       salaryTo: jobPost.salaryTo,
+      applicationMode: jobPost.applicationMode,
+      externalApplyUrl: jobPost.externalApplyUrl || "",
+      isVetted: jobPost.isVetted,
+      sourceLabel: jobPost.sourceLabel || "",
     },
   });
 

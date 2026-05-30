@@ -71,6 +71,10 @@ export function CreateJobForm({
       location: "",
       salaryFrom: 0,
       salaryTo: 0,
+      applicationMode: "INTERNAL",
+      externalApplyUrl: "",
+      isVetted: false,
+      sourceLabel: "",
     },
   });
 

@@ -149,6 +149,10 @@ export async function createJob(data: z.infer<typeof jobSchema>) {
       salaryTo: validateData.salaryTo,
       listingDuration: validateData.listingDuration,
       benefits: validateData.benefits,
+      applicationMode: validateData.applicationMode,
+      externalApplyUrl: validateData.externalApplyUrl || null,
+      isVetted: validateData.isVetted,
+      sourceLabel: validateData.sourceLabel || null,
       companyId: company.id,
     },
     select: {
@@ -278,6 +282,10 @@ export async function editJobPost(
       salaryTo: validateData.salaryTo,
       listingDuration: validateData.listingDuration,
       benefits: validateData.benefits,
+      applicationMode: validateData.applicationMode,
+      externalApplyUrl: validateData.externalApplyUrl || null,
+      isVetted: validateData.isVetted,
+      sourceLabel: validateData.sourceLabel || null,
     },
   });
 
@@ -295,14 +303,46 @@ export async function deleteJobPost(jobId: string) {
     throw new Error("Forbidden");
   }
 
-  await prisma.jobPost.delete({
-    where: {
-      id: jobId,
-      Company: {
-        userId: session.id,
+  await prisma.$transaction([
+    prisma.savedJobPost.deleteMany({
+      where: {
+        jobPostId: jobId,
+        jobPost: {
+          Company: {
+            userId: session.id,
+          },
+        },
       },
-    },
-  });
+    }),
+    prisma.jobApplication.deleteMany({
+      where: {
+        jobPostId: jobId,
+        jobPost: {
+          Company: {
+            userId: session.id,
+          },
+        },
+      },
+    }),
+    prisma.application.deleteMany({
+      where: {
+        jobPostId: jobId,
+        jobPost: {
+          Company: {
+            userId: session.id,
+          },
+        },
+      },
+    }),
+    prisma.jobPost.delete({
+      where: {
+        id: jobId,
+        Company: {
+          userId: session.id,
+        },
+      },
+    }),
+  ]);
 
   await inngest.send({
     name: "job/cancel.expiration",
@@ -310,4 +350,27 @@ export async function deleteJobPost(jobId: string) {
   });
 
   return redirect("/my-jobs");
+}
+
+export async function deleteJobApplication(applicationId: string) {
+  const session = await requireUser();
+
+  const req = await request();
+
+  const decision = await aj.protect(req);
+
+  if (decision.isDenied()) {
+    throw new Error("Forbidden");
+  }
+
+  await prisma.jobApplication.delete({
+    where: {
+      id: applicationId,
+      userId: session.id,
+    },
+  });
+
+  revalidatePath("/my-applications");
+
+  return redirect("/my-applications");
 }

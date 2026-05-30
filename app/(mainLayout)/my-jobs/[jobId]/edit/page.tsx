@@ -21,6 +21,10 @@ async function getData(jobId: string, userId: string) {
       location: true,
       employmentType: true,
       listingDuration: true,
+      applicationMode: true,
+      externalApplyUrl: true,
+      isVetted: true,
+      sourceLabel: true,
       Company: {
         select: {
           about: true,

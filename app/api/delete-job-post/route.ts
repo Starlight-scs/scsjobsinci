@@ -1,9 +1,14 @@
-// app/api/delete-job-post/route.ts (or pages/api/delete-job-post.ts for older versions)
-
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/app/utils/db"; // adjust if needed
+import { prisma } from "@/app/utils/db";
+import { auth } from "@/app/utils/auth";
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
   const body = await req.json();
   const { id, confirmDelete } = body;
 
@@ -16,21 +21,28 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const jobPost = await prisma.jobPost.findUnique({ where: { id } });
+    const jobPost = await prisma.jobPost.findFirst({
+      where: {
+        id,
+        Company: {
+          userId: session.user.id,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
 
     if (!jobPost) {
       return NextResponse.json({ error: "Job post not found." }, { status: 404 });
     }
 
-    // Delete associated applications first
-    await prisma.jobApplication.deleteMany({
-      where: { jobPostId: id },
-    });
-
-    // Then delete the job post
-    await prisma.jobPost.delete({
-      where: { id },
-    });
+    await prisma.$transaction([
+      prisma.savedJobPost.deleteMany({ where: { jobPostId: id } }),
+      prisma.jobApplication.deleteMany({ where: { jobPostId: id } }),
+      prisma.application.deleteMany({ where: { jobPostId: id } }),
+      prisma.jobPost.delete({ where: { id } }),
+    ]);
 
     return NextResponse.json({ message: "Job post and related applications deleted." });
   } catch (error) {

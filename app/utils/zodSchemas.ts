@@ -37,6 +37,18 @@ export const jobSchema = z.object({
 
   companyWebsite: z.string().min(1, "Company website is required"),
   companyXAccount: z.string().optional(),
+  applicationMode: z.enum(["INTERNAL", "EXTERNAL"]).default("INTERNAL"),
+  externalApplyUrl: z.string().url("Please enter a valid application URL").optional().or(z.literal("")),
+  isVetted: z.boolean().default(false),
+  sourceLabel: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (data.applicationMode === "EXTERNAL" && !data.externalApplyUrl) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "External jobs require an application URL",
+      path: ["externalApplyUrl"],
+    });
+  }
 });
 
 export const applicationSchema = z.object({

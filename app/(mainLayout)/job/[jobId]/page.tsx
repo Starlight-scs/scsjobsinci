@@ -13,7 +13,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { request } from "@arcjet/next";
-import { Heart } from "lucide-react";
+import { ExternalLink, Heart, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -64,6 +64,10 @@ async function getJob(jobId: string, userId?: string) {
         benefits: true,
         createdAt: true,
         listingDuration: true,
+        applicationMode: true,
+        externalApplyUrl: true,
+        isVetted: true,
+        sourceLabel: true,
         Company: {
           select: {
             name: true,
@@ -151,6 +155,24 @@ export default async function JobIdPage({ params }: { params: Params }) {
                 {locationFlag && <span className="mr-1">{locationFlag}</span>}
                 {data.location}
               </Badge>
+              {data.isVetted && (
+                <>
+                  <span className="hidden md:inline text-muted-foreground">*</span>
+                  <Badge className="rounded-full gap-1" variant="outline">
+                    <ShieldCheck className="size-3" />
+                    Vetted employer
+                  </Badge>
+                </>
+              )}
+              {data.applicationMode === "EXTERNAL" && (
+                <>
+                  <span className="hidden md:inline text-muted-foreground">*</span>
+                  <Badge className="rounded-full gap-1" variant="secondary">
+                    <ExternalLink className="size-3" />
+                    Apply on employer site
+                  </Badge>
+                </>
+              )}
 
             </div>
           </div>
@@ -220,20 +242,42 @@ export default async function JobIdPage({ params }: { params: Params }) {
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">Apply now</h3>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Please let <span className="text-primary text-1xl font-bold text-foreground "> {data.Company.name}</span> know you found this job on
-                <span className="text-1xl font-bold text-foreground "> Jobs in Central Illinois.com.</span> This helps us grow!
-              </p>
+              {data.applicationMode === "EXTERNAL" ? (
+                <p className="text-sm text-muted-foreground mt-1">
+                  This vetted job is listed here for discovery, but applications are handled by{" "}
+                  <span className="text-primary text-1xl font-bold text-foreground">
+                    {data.Company.name}
+                  </span>
+                  .
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground mt-1">
+                  Please let <span className="text-primary text-1xl font-bold text-foreground "> {data.Company.name}</span> know you found this job on
+                  <span className="text-1xl font-bold text-foreground "> Jobs in Central Illinois.com.</span> This helps us grow!
+                </p>
+              )}
             </div>
 
-            <ApplyNowForm
-              jobId={jobId}
-              jobTitle={data.jobTitle}
-              name={session?.user?.name}
-              employmentType={data.employmentType}
-              resume={jobSeeker?.resume || ""}
-              coverLetter={jobSeeker?.coverLetter || ""}
-            />
+            {data.applicationMode === "EXTERNAL" && data.externalApplyUrl ? (
+              <Link
+                href={data.externalApplyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={buttonVariants({ className: "w-full" })}
+              >
+                <ExternalLink className="size-4" />
+                Apply on employer site
+              </Link>
+            ) : (
+              <ApplyNowForm
+                jobId={jobId}
+                jobTitle={data.jobTitle}
+                name={session?.user?.name}
+                employmentType={data.employmentType}
+                resume={jobSeeker?.resume || ""}
+                coverLetter={jobSeeker?.coverLetter || ""}
+              />
+            )}
 
           </div>
         </Card>
@@ -288,6 +332,22 @@ export default async function JobIdPage({ params }: { params: Params }) {
                 {data.location}
               </span>
             </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Application</span>
+
+              <span className="text-sm">
+                {data.applicationMode === "EXTERNAL"
+                  ? "Employer website"
+                  : "Jobs in Central Illinois"}
+              </span>
+            </div>
+            {data.sourceLabel && (
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Source</span>
+
+                <span className="text-sm">{data.sourceLabel}</span>
+              </div>
+            )}
           </div>
         </Card>
 
